@@ -3,7 +3,7 @@ import wave
 import os
 import struct
 import math
-from scipy import fromstring, int16
+from scipy import frombuffer, int16
 from pypinyin import pinyin, lazy_pinyin, Style
 
 json_file='YOUR_JSON_FILE.json'
@@ -50,7 +50,7 @@ width = audio.getsampwidth()
 fr = audio.getframerate()
 fn = audio.getnframes()
 data = audio.readframes(fn)
-audioContent = fromstring(data, dtype=int16)
+audioContent = frombuffer(data, dtype=int16)
 
 # split the wave file
 
