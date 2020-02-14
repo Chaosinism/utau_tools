@@ -2,13 +2,21 @@ import json
 import wave
 import os
 import struct
-import math
+import sys
 from scipy import frombuffer, int16
 from pypinyin import pinyin, lazy_pinyin, Style
 
-json_file='YOUR_JSON_FILE.json'
-wav_file='YOUR_WAVE_FILE.wav'
-confidence_threshold=0
+json_file=sys.argv[1]
+wav_file=sys.argv[2]
+
+confidence_threshold=0.75
+if len(sys.argv)>3:
+    confidence_threshold=float(sys.argv[3])
+
+length_threshold=0.3
+if len(sys.argv)>4:
+    length_threshold=float(sys.argv[4])
+
 
 confidences={}
 timestamps={}
@@ -35,9 +43,9 @@ with open(json_file,'rb') as f:
                 while wordPy in confidences:
                     wordPy=wordPy.split('_')[0]+'_'+str(int(wordPy.split('_')[1])+1)
 
-                # regard a word less confident if it has more than one syllable
-                if wordConfi/wordCount>confidence_threshold:
-                    confidences[wordPy]=wordConfi/wordCount
+                # check if the word satisfies all thresholds
+                if wordConfi>confidence_threshold and (wordT1-wordT0)/wordCount>length_threshold:
+                    confidences[wordPy]=wordConfi
                     timestamps[wordPy]=[wordT0,wordT1]
 
                     
@@ -65,4 +73,3 @@ for name in timestamps:
     ww.setframerate(fr)
     ww.writeframes(outd)
     ww.close()
-    
